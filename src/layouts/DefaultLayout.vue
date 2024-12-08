@@ -14,7 +14,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Navbar from '../components/Navbar.vue';
+import { useThemeStore } from '../stores/Theme';
 
+const themeStore = useThemeStore();
 const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
 prefersColorScheme.addListener((event) => {
     if (event.matches) {
@@ -25,7 +27,7 @@ prefersColorScheme.addListener((event) => {
         theme.value = 'light'
     }
 });
-const theme = ref<string>('light')
+const theme = ref<string>(themeStore.GetTheme)
 </script>
 
 <style scoped></style>
