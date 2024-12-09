@@ -70,11 +70,13 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import { useDisplay } from 'vuetify'
+import { useThemeStore } from '../stores/theme';
 
 const { width } = useDisplay()
-const theme = defineModel('theme', { required: true })
-const toggleTheme = ref(theme.value)
+const theme = defineModel('theme', { type: String, required: true })
+const toggleTheme = ref<string>(theme.value)
 const drawer = ref<boolean>(false)
+const themeStore = useThemeStore();
 const userAuth = reactive({
     initials: 'RD',
     fullName: 'Rafael Dias',
@@ -104,23 +106,17 @@ function changeTheme(oTheme: string) {
 
     switch (oTheme) {
         case 'light':
-            theme.value = 'light'
+            themeStore.setTheme(false);
             toggleTheme.value = 'light'
             break;
 
         case 'dark':
-            theme.value = 'dark'
+            themeStore.setTheme(true);
             toggleTheme.value = 'dark'
             break;
 
         default:
-            const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
-
-            if (prefersColorScheme.matches) {
-                theme.value = 'dark'
-            } else {
-                theme.value = 'light'
-            }
+            themeStore.enableSystemTheme()
             toggleTheme.value = 'system'
             break;
     }
