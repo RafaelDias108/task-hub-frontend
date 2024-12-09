@@ -8,8 +8,8 @@ export const useThemeStore = defineStore('themeStore', {
         followSystemTheme: false
     }),
     getters: {
-        GetTheme() {
-            if (this.isDarkMode) {
+        GetTheme(state) {
+            if (state.isDarkMode) {
                 return 'dark'
             } else {
                 return 'light'
@@ -37,6 +37,7 @@ export const useThemeStore = defineStore('themeStore', {
         },
     },
     persist: {
-        storage: localStorage
-    }
+        storage: localStorage, // Persistir no localStorage
+    },
 })
+

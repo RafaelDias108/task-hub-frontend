@@ -1,7 +1,7 @@
 <template>
     <v-responsive>
-        <v-app :theme="theme">
-            <Navbar v-model:theme="theme" />
+        <v-app :theme="themeStore.GetTheme">
+            <Navbar v-model:theme="themeStore.GetTheme" />
             <v-main>
                 <v-container :fluid="true">
                     <RouterView />
@@ -12,22 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import Navbar from '../components/Navbar.vue';
-import { useThemeStore } from '../stores/Theme';
+import { useThemeStore } from '../stores/theme';
 
 const themeStore = useThemeStore();
-const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
-prefersColorScheme.addListener((event) => {
-    if (event.matches) {
-        // O tema é o dark
-        theme.value = 'dark'
-    } else {
-        // O tema é o light
-        theme.value = 'light'
-    }
-});
-const theme = ref<string>(themeStore.GetTheme)
 </script>
 
 <style scoped></style>
