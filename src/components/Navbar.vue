@@ -35,19 +35,19 @@
                 </v-menu>
             </v-btn>
             <v-btn class="ms-1" icon>
-                <v-avatar color="brown">
-                    <span class="text-body-1">{{ userAuth.initials }}</span>
+                <v-avatar color="indigo">
+                    <span class="text-body-1">{{ getInitialUserLogin }}</span>
                 </v-avatar>
                 <v-menu activator="parent" origin="top">
                     <v-list>
                         <v-list-item class="mb-3">
-                            <v-list-item-title class="font-weight-bold">{{ userAuth.fullName }}</v-list-item-title>
-                            <v-list-item-subtitle>{{ userAuth.email }}</v-list-item-subtitle>
+                            <v-list-item-title class="font-weight-bold">{{ userFullName }} </v-list-item-title>
+                            <v-list-item-subtitle>{{ authStore.user?.email_user }}</v-list-item-subtitle>
                         </v-list-item>
                         <v-divider></v-divider>
                         <v-list-item slim link title="Perfil" prepend-icon="mdi-account-outline" />
                         <v-list-item slim link title="Configurações" prepend-icon="mdi-cog-outline" />
-                        <v-list-item slim link title="Sair" prepend-icon="mdi-logout" />
+                        <v-list-item slim link title="Sair" prepend-icon="mdi-logout" @click="handleLogout" />
                     </v-list>
                 </v-menu>
             </v-btn>
@@ -68,20 +68,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useDisplay } from 'vuetify'
 import { useThemeStore } from '../stores/theme';
+import { useAuthStore } from '../stores/auth';
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const { width } = useDisplay()
 const theme = defineModel('theme', { type: String, required: true })
 const toggleTheme = ref<string>(theme.value)
 const drawer = ref<boolean>(false)
 const themeStore = useThemeStore();
-const userAuth = reactive({
-    initials: 'RD',
-    fullName: 'Rafael Dias',
-    email: 'rafaelsd70@gmail.com'
-})
+const authStore = useAuthStore();
+
 const toggleThemeIcon = computed(() => {
     let icon = '';
 
@@ -102,6 +102,26 @@ const toggleThemeIcon = computed(() => {
     return icon;
 })
 
+const getInitialUserLogin = computed(() => {
+
+    if(authStore.user?.firstname_user, authStore.user?.lastname_user){
+        const initial1 = authStore.user?.firstname_user.charAt(0).toUpperCase();
+        const initial2 = authStore.user?.lastname_user.charAt(0).toUpperCase();
+        return `${initial1}${initial2}`;
+    }
+
+    return '';
+})
+
+const userFullName = computed(() => {
+
+    if(authStore.user?.firstname_user, authStore.user?.lastname_user){
+        return `${authStore.user?.firstname_user} ${authStore.user?.lastname_user}`;
+    }
+
+    return '';
+})
+
 function changeTheme(oTheme: string) {
 
     switch (oTheme) {
@@ -120,6 +140,11 @@ function changeTheme(oTheme: string) {
             toggleTheme.value = 'system'
             break;
     }
+}
+
+function handleLogout() {
+    authStore.logout();
+    router.push('/login')
 }
 </script>
 
