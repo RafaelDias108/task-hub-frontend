@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { authGuard } from '../middlewares/auth'
+import { authGuard, guestGuard } from '../middlewares/auth'
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -33,7 +33,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/login',
         name: 'login',
-        // @ts-ignore
+        beforeEnter: guestGuard,
         component: () => import('../views/pages/Login.vue')
     }
 ]
