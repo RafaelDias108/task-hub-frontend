@@ -1,6 +1,7 @@
+import { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 
-export const authGuard = (to: any, from: any, next: any) => {
+export const authGuard = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     const authStore = useAuthStore();
 
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
@@ -9,3 +10,13 @@ export const authGuard = (to: any, from: any, next: any) => {
         next();
     }
 };
+
+export function guestGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
+    const authStore = useAuthStore();
+  
+    if (!authStore.isAuthenticated) {
+      next();
+    } else {
+      next("/dashboard");
+    }
+  }
