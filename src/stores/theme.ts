@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { Theme } from '../interfaces/themeInterfaces';
+import { Theme } from '../types/themeInterfaces';
 
 export const useThemeStore = defineStore('themeStore', {
 
