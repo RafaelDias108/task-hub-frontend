@@ -2,7 +2,7 @@
     <v-responsive>
         <v-app :theme="themeStore.GetTheme">
             <Navbar v-model:theme="themeStore.GetTheme" />
-            <v-main>
+            <v-main class="mt-5 bg-indigo-lighten-5">
                 <v-container :fluid="true">
                     <RouterView />
                 </v-container>
