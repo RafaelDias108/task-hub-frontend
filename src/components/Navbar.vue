@@ -8,9 +8,9 @@
 
         <v-sheet v-if="width > 900">
             <v-tabs align-tabs="center">
-                <v-tab prepend-icon="mdi-speedometer" to="dashboard">DASHBOARD</v-tab>
-                <v-tab prepend-icon="mdi-chart-box-outline" to="projects">PROJETOS</v-tab>
-                <v-tab prepend-icon="mdi-collage" to="categories">CATEGORIAS</v-tab>
+                <v-tab color="primary" prepend-icon="mdi-speedometer" to="dashboard">DASHBOARD</v-tab>
+                <v-tab color="primary" prepend-icon="mdi-chart-box-outline" to="projects">PROJETOS</v-tab>
+                <v-tab color="primary" prepend-icon="mdi-collage" to="categories">CATEGORIAS</v-tab>
             </v-tabs>
         </v-sheet>
 
@@ -35,7 +35,7 @@
                 </v-menu>
             </v-btn>
             <v-btn class="ms-1" icon>
-                <v-avatar color="indigo">
+                <v-avatar color="primary">
                     <span class="text-body-1">{{ getInitialUserLogin }}</span>
                 </v-avatar>
                 <v-menu activator="parent" origin="top">
@@ -57,11 +57,11 @@
 
     <v-navigation-drawer v-model="drawer" temporary>
         <v-list class="mt-5" nav>
-            <v-list-item prepend-icon="mdi-speedometer" title="Dashboard" value="Dashboard" link
+            <v-list-item color="primary" prepend-icon="mdi-speedometer" title="Dashboard" value="Dashboard" link
                 to="dashboard"></v-list-item>
-            <v-list-item prepend-icon="mdi-chart-box-outline" title="Projetos" value="Projetos" link
+            <v-list-item color="primary" prepend-icon="mdi-chart-box-outline" title="Projetos" value="Projetos" link
                 to="projects"></v-list-item>
-            <v-list-item prepend-icon="mdi-collage" title="Categorias" value="Categorias" link
+            <v-list-item color="primary" prepend-icon="mdi-collage" title="Categorias" value="Categorias" link
                 to="categories"></v-list-item>
         </v-list>
     </v-navigation-drawer>
@@ -148,4 +148,8 @@ function handleLogout() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.active-drawer-custom {
+    background-color: var(--v-theme-cardCustom);
+}
+</style>
