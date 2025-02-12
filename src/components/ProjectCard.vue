@@ -16,7 +16,7 @@
             </div>
             <v-progress-linear color="blue-darken-3" :model-value="props.totalTaskDonePercent" :height="5"></v-progress-linear>
             <div class="mt-10">
-                <v-chip class="mx-1" label size="small" color="primary" variant="flat" v-for="categorie in props.categories">
+                <v-chip class="ma-1" label size="small" color="primary" variant="flat" v-for="categorie in props.categories">
                     {{ categorie.title }}
                 </v-chip>
             </div>
