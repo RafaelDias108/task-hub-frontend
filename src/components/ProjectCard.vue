@@ -49,7 +49,8 @@ const props = defineProps({
     },
     totalTask: {
         type: Number,
-        required: true
+        required: true,
+        default: () => 0
     },
     totalTaskDone: {
         type: Number,
@@ -58,7 +59,8 @@ const props = defineProps({
     },
     totalTaskDonePercent: {
         type: Number,
-        required: true
+        required: true,
+        default: () => 0
     },
     categories: {
         type: Array,
