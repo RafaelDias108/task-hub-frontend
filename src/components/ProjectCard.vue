@@ -14,9 +14,11 @@
                 </div>
                 <span class="text-subtitle-2">{{ props.totalTaskDone }}/{{ props.totalTask }}</span>
             </div>
-            <v-progress-linear color="blue-darken-3" :model-value="props.totalTaskDonePercent" :height="5"></v-progress-linear>
+            <v-progress-linear color="blue-darken-3" :model-value="props.totalTaskDonePercent"
+                :height="5"></v-progress-linear>
             <div class="mt-10">
-                <v-chip class="ma-1" label size="small" color="primary" variant="flat" v-for="categorie in props.categories">
+                <v-chip class="ma-1" label size="small" color="primary" variant="flat"
+                    v-for="categorie in props.categories">
                     {{ categorie.title }}
                 </v-chip>
             </div>
@@ -63,7 +65,7 @@ const props = defineProps({
         default: () => 0
     },
     categories: {
-        type: Array,
+        type: Object,
         default: () => {}
     }
 

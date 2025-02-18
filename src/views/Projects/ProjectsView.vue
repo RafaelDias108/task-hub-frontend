@@ -9,7 +9,7 @@
             </template>
 
             <template v-slot:append>
-                <v-btn color="primary">Novo Projeto</v-btn>
+                <v-btn color="primary" @click="dialog = true">Novo Projeto</v-btn>
             </template>
             <v-card-text>
                 <div class="d-flex align-center justify-end">
@@ -18,27 +18,18 @@
                         variant="underlined" single-line density="compact"
                         :items="[{ title: 'Nome', value: 'nome' }, { title: 'Data', value: 'data' }]"></v-select>
                 </div>
-                <v-row class="px-10 py-5">
+                <v-row class="px-10 py-5" v-if="isLoading">
                     <v-col cols="12" md="4">
-                        <ProjectCard title="Projeto 1" :total-task="10" :total-task-done="5"
-                            :total-task-done-percent="50" :categories="categoriesFake"></ProjectCard>
+                        <v-skeleton-loader class="mx-auto" elevation="1" type="list-item-avatar, list-item-two-line, chip, chip"></v-skeleton-loader>
                     </v-col>
                     <v-col cols="12" md="4">
-                        <ProjectCard title="Projeto 2" :total-task="10" :total-task-done="3"
-                            :total-task-done-percent="30" :categories="categoriesFake"></ProjectCard>
+                        <v-skeleton-loader class="mx-auto" elevation="1" type="list-item-avatar, list-item-two-line, chip, chip"></v-skeleton-loader>
                     </v-col>
                     <v-col cols="12" md="4">
-                        <ProjectCard title="Projeto 3" :total-task="10" :total-task-done="1"
-                            :total-task-done-percent="10" :categories="categoriesFake"></ProjectCard>
+                        <v-skeleton-loader class="mx-auto" elevation="1" type="list-item-avatar, list-item-two-line, chip, chip"></v-skeleton-loader>
                     </v-col>
-                    <v-col cols="12" md="4">
-                        <ProjectCard title="Projeto para cliente 1" :total-task="5" :total-task-done="4"
-                            :total-task-done-percent="90" :categories="categoriesFake"></ProjectCard>
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <ProjectCard title="Projeto 1" :total-task="3" :total-task-done="0"
-                            :total-task-done-percent="0" :categories="categoriesFake"></ProjectCard>
-                    </v-col>
+                </v-row>
+                <v-row class="px-10 py-5" v-else>
                     <v-col cols="12" md="4">
                         <ProjectCard title="Projeto 1" :total-task="10" :total-task-done="5"
                             :total-task-done-percent="50" :categories="categoriesFake"></ProjectCard>
@@ -49,13 +40,17 @@
                 </v-row>
             </v-card-text>
         </v-card>
+        <ModalNewProject v-model:dialog="dialog" @close="dialog = false"></ModalNewProject>
     </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import ProjectCard from '../../components/ProjectCard.vue';
+import ModalNewProject from '../../components/ModalNewProject.vue';
+import { GetAllProjectsApi } from '../../services/api';
 
+const isLoading = ref(false);
 const orderData = ref({ title: 'Nome', value: 'nome' })
 const categoriesFake = [
     {
@@ -71,6 +66,31 @@ const categoriesFake = [
         title: 'Mobile'
     },
 ]
+const dialog = ref(false);
+const allProjects = ref({});
+
+async function GetAllProjects() {
+
+    try {
+        isLoading.value = true;
+        const response = await GetAllProjectsApi();
+
+        if(response.status == "success"){
+            if(response.data.length > 0){
+                allProjects.value = response.data;
+            }
+        }
+        
+    } catch (error) {
+        
+    }finally{
+        isLoading.value = false;
+    }
+}
+
+onMounted(() => {
+    GetAllProjects();
+})
 </script>
 
 <style scoped></style>
