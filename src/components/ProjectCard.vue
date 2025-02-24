@@ -1,5 +1,5 @@
 <template>
-    <v-card class="bg-cardCustom" :title="props.title">
+    <v-card class="bg-cardCustom" :title="props.title"  >
         <template v-slot:prepend>
             <v-avatar class="mr-3" color="primary">
                 <v-icon icon="mdi-notebook-outline" size="large"></v-icon>
@@ -16,11 +16,14 @@
             </div>
             <v-progress-linear color="blue-darken-3" :model-value="props.totalTaskDonePercent"
                 :height="5"></v-progress-linear>
-            <div class="mt-10">
+            <div class="mt-10" v-if="props.categories.length > 0">
                 <v-chip class="ma-1" label size="small" color="primary" variant="flat"
                     v-for="categorie in props.categories">
                     {{ categorie.title }}
                 </v-chip>
+            </div>
+            <div class="mt-10" v-else>
+                <p>Não há categorias</p>
             </div>
         </template>
 
