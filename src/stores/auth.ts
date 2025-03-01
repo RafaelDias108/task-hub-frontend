@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', {
             try {
                 // const response = await RefreshTokenApi(this.refresh_token);
                 const response = await RefreshTokenApi();
-                console.log("refreshToken", response);
+
                 if(response.status == "success"){
                     this.access_token = response.data.access_token;
                 }
