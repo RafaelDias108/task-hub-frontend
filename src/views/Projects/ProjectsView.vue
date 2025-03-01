@@ -30,8 +30,8 @@
                         <v-skeleton-loader class="mx-auto" elevation="1" type="list-item-avatar, list-item-two-line, chip, chip"></v-skeleton-loader>
                     </v-col>
                 </v-row>
-                <v-row class="px-10 py-5" v-else-if="haveProjects" v-for="project in allProjects">
-                    <v-col cols="12" md="4">
+                <v-row class="px-10 py-5" v-else-if="haveProjects">
+                    <v-col cols="12" md="4" v-for="project in allProjects">
                         <ProjectCard :title="project.name_project" :total-task="project.total_tasks" :total-task-done="project.total_tasks_completed"
                             :total-task-done-percent="ConvertToPercentage(project.total_tasks, project.total_tasks_completed)" :categories="project.categories"></ProjectCard>
                     </v-col>
