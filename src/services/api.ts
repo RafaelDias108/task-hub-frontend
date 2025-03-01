@@ -5,8 +5,13 @@ export const LoginApi = async (email: string, password: string) => {
     return response.data;
 }
 
-export const RefreshTokenApi = async (refreshToken: string | null) => {
-    const response = await api.post('/auth/refreshTokens', { refresh_token: refreshToken})
+// export const RefreshTokenApi = async (refreshToken: string | null) => {
+//     const response = await api.post('/auth/refreshTokens', { refresh_token: refreshToken})
+//     return response.data;
+// }
+
+export const RefreshTokenApi = async () => {
+    const response = await api.post('/auth/refreshToken')
     return response.data;
 }
 

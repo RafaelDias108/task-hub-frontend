@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/auth";
+import router from "../routes";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
+    withCredentials: true,
     headers: {
         'Content-Type': ' multipart/form-data'
     }
@@ -29,21 +31,18 @@ api.interceptors.response.use(
     },
     (error) => {
         const authStore = useAuthStore();
-
-        if (error.response?.status === 401 && authStore.refresh_token) {
+        if (error.response.status === 401) {
             try {
                 authStore.refreshToken();
                 return api.request(error.config);
-            } catch (refreshError) {
-                authStore.logout();
+            } catch (error) {
                 delete api.defaults.headers.common["Authorization"];
+                authStore.logout();
+                router.push('/login')
             }
         }
 
-        if (error.response.status === 401 && !authStore.refresh_token) {
-            authStore.logout();
-            delete api.defaults.headers.common["Authorization"];
-        }
+        
 
         return Promise.reject(error.response.data);
     }
