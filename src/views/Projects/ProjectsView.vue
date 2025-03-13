@@ -59,6 +59,7 @@ import ModalNewProject from '../../components/ModalNewProject.vue';
 import { GetAllProjectsApi, NewProjectApi } from '../../services/api';
 import { Project } from '../../types/projectInterface';
 import { ConvertToPercentage } from '../../helpers/functions';
+import { Notification } from '../../plugins/notifications';
 
 const isLoading = ref(false);
 const isLoadingNewProject = ref(false);
@@ -102,21 +103,21 @@ async function HandleSubmitNewProject(data: any) {
     try {
 
         const formData = {
-            name_project: data.name,
-            date_project: data.date,
+            name_project: data.name_project,
+            date_project: data.date_project,
             categories: data.categories
         }
-        
+
         isLoadingNewProject.value = true;
         const response = await NewProjectApi(formData)
         if(response.status == "success"){
             GetAllProjects();
-
+            Notification.success("Projeto criado com sucesso")
         }
         
     } catch (error) {
         console.log(error);
-
+        Notification.error("Não foi possível criar o projeto")
     }finally{
         isLoadingNewProject.value = false;
         dialog.value = false;
