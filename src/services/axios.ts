@@ -29,16 +29,19 @@ api.interceptors.response.use(
         // Modify the response data here
         return response;
     },
-    (error) => {
+    async (error) => {
         const authStore = useAuthStore();
         if (error.response.status === 401) {
             try {
-                authStore.refreshToken();
+                await authStore.refreshToken();
+
+                // Refaz a requisição original com o novo token
                 return api.request(error.config);
             } catch (error) {
                 delete api.defaults.headers.common["Authorization"];
                 authStore.logout();
                 router.push('/login')
+                return Promise.reject(error);
             }
         }
 
