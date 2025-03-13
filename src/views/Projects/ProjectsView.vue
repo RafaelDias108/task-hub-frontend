@@ -115,9 +115,13 @@ async function HandleSubmitNewProject(data: any) {
             Notification.success("Projeto criado com sucesso")
         }
         
-    } catch (error) {
-        console.log(error);
-        Notification.error("Não foi possível criar o projeto")
+    } catch (error: any) {
+        
+        if(error.data.hasOwnProperty('errors')){
+            for (const [key, value] of Object.entries(error.data.errors)) {
+                Notification.error(`Não foi possível criar o projeto: ${value}`)
+            }
+        }
     }finally{
         isLoadingNewProject.value = false;
         dialog.value = false;
