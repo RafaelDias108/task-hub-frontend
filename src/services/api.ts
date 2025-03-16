@@ -24,3 +24,13 @@ export const NewProjectApi = async (data: object) => {
     const response = await api.post('/projects', data)
     return response.data;
 }
+
+// Categories
+export class Backend {
+
+    static async GetAllCategories() {
+
+        const response = await api.get('/categories')
+        return response.data
+    }
+}
