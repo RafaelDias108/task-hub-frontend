@@ -1,5 +1,5 @@
 <template>
-    <v-card class="bg-cardCustom" :title="props.title"  >
+    <v-card class="bg-cardCustom" :title="props.project?.name_project"  >
         <template v-slot:prepend>
             <v-avatar class="mr-3" color="primary">
                 <v-icon icon="mdi-notebook-outline" size="large"></v-icon>
@@ -12,14 +12,14 @@
                     <v-icon icon="mdi-chart-timeline"></v-icon>
                     <span class="text-subtitle-2">Progresso</span>
                 </div>
-                <span class="text-subtitle-2">{{ props.totalTaskDone }}/{{ props.totalTask }}</span>
+                <span class="text-subtitle-2">{{ props.project?.total_tasks_completed }}/{{ props.project?.total_tasks }}</span>
             </div>
-            <v-progress-linear color="blue-darken-3" :model-value="props.totalTaskDonePercent"
+            <v-progress-linear color="blue-darken-3" :model-value="ConvertToPercentage(props.project.total_tasks, props.project.total_tasks_completed)"
                 :height="5"></v-progress-linear>
-            <div class="mt-10" v-if="props.categories.length > 0">
+            <div class="mt-10" v-if="props.project?.categories.length > 0">
                 <v-chip class="ma-1" label size="small" color="primary" variant="flat"
-                    v-for="categorie in props.categories">
-                    {{ categorie.title }}
+                    v-for="categorie in props.project?.categories">
+                    {{ categorie.name_category }}
                 </v-chip>
             </div>
             <div class="mt-10" v-else>
@@ -34,9 +34,8 @@
                 </template>
 
                 <v-list>
-                    <v-list-item class="v-list-item-custom mx-2" link density="compact" v-for="(item, i) in items"
-                        :key="i" :title="item.title" :prepend-icon="item.props.prependIcon">
-                    </v-list-item>
+                    <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Editar" prepend-icon="mdi-pencil-box-multiple-outline" @click="emit('edit', props.project)" />
+                    <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Deletar" prepend-icon="mdi-delete" @click="emit('delete')" />
                 </v-list>
             </v-menu>
         </template>
@@ -44,53 +43,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-
+import { ConvertToPercentage } from '../helpers/functions';
+const emit = defineEmits(['edit', 'delete'])
 const props = defineProps({
-
-    title: {
-        type: String,
-        required: true
-    },
-    totalTask: {
-        type: Number,
-        required: true,
-        default: () => 0
-    },
-    totalTaskDone: {
-        type: Number,
-        required: true,
-        default: () => 0
-    },
-    totalTaskDonePercent: {
-        type: Number,
-        required: true,
-        default: () => 0
-    },
-    categories: {
+    project : {
         type: Object,
-        default: () => {}
+        required: true
     }
-
 })
 
-const items = ref([
-    {
-        title: 'Editar',
-        value: 1,
-
-        props: {
-            prependIcon: 'mdi-pencil-box-multiple-outline',
-        }
-    },
-    {
-        title: 'Deletar',
-        value: 2,
-        props: {
-            prependIcon: 'mdi-delete',
-        }
-    },
-])
 </script>
 
 <style scoped>
