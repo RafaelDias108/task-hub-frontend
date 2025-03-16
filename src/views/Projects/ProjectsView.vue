@@ -32,8 +32,7 @@
                 </v-row>
                 <v-row class="px-10 py-5" v-else-if="haveProjects">
                     <v-col cols="12" md="4" v-for="project in allProjects">
-                        <ProjectCard :title="project.name_project" :total-task="project.total_tasks" :total-task-done="project.total_tasks_completed"
-                            :total-task-done-percent="ConvertToPercentage(project.total_tasks, project.total_tasks_completed)" :categories="project.categories"></ProjectCard>
+                        <ProjectCard :project="project" @edit="EditProjeto" />
                     </v-col>
                 </v-row>
                 <v-row class="py-5" justify="center" v-if="haveProjects">
@@ -48,7 +47,8 @@
                 </v-row>
             </v-card-text>
         </v-card>
-        <ModalNewProject v-model:dialog="dialog" :is-loading="isLoadingNewProject" @close="dialog = false" @submit="HandleSubmitNewProject"></ModalNewProject>
+        <ModalNewProject v-if="dialog" v-model:dialog="dialog" :is-loading="isLoadingNewProject" @close="dialog = false" @submit="HandleSubmitNewProject"></ModalNewProject>
+        <ModalEditProject v-if="dialogEditProject" v-model:dialog="dialogEditProject" :project="editProject" :is-loading="isLoadingEditProject" @close="dialogEditProject = false" @submit="HandleSubmitEditProject" />
     </v-container>
 </template>
 
@@ -56,17 +56,25 @@
 import { computed, onMounted, ref } from 'vue';
 import ProjectCard from '../../components/ProjectCard.vue';
 import ModalNewProject from '../../components/ModalNewProject.vue';
-import { GetAllProjectsApi, NewProjectApi } from '../../services/api';
-import { Project } from '../../types/projectInterface';
-import { ConvertToPercentage } from '../../helpers/functions';
+import ModalEditProject from '../../components/ModalEditProject.vue'
+import { GetAllProjectsApi, NewProjectApi, UpdateProjectApi } from '../../services/api';
+import { EditProject, Project } from '../../types/projectInterface';
 import { Notification } from '../../plugins/notifications';
 
 const isLoading = ref(false);
 const isLoadingNewProject = ref(false);
+const isLoadingEditProject = ref(false);
 const haveProjects = ref(false);
 const orderData = ref({ title: 'Nome', value: 'nome' })
 const dialog = ref(false);
+const dialogEditProject = ref(false);
 const allProjects = ref<Project[]>([]);
+const editProject = ref<EditProject>({
+    uuid: '',
+    name_project: '',
+    date_project: '',
+    categories: []
+})
 
 async function GetAllProjects() {
 
@@ -125,6 +133,30 @@ async function HandleSubmitNewProject(data: any) {
     }finally{
         isLoadingNewProject.value = false;
         dialog.value = false;
+    }
+}
+
+function EditProjeto(project: Project) {
+    dialogEditProject.value = true
+    editProject.value.uuid = project.uuid_project
+    editProject.value.name_project = project.name_project
+    editProject.value.date_project = project.date_project ?? null
+    editProject.value.categories = project.categories
+}
+
+async function HandleSubmitEditProject(project: EditProject) {
+    isLoadingEditProject.value = true
+    try {
+        const response = await UpdateProjectApi(project)
+        if(response.status == 'success'){
+            dialogEditProject.value = false
+            GetAllProjects();
+            Notification.success("Projeto atualizado com sucesso")
+        }
+    } catch (error) {
+        Notification.error(`Não foi possível atualizar o projeto: ${error.message}`)
+    }finally{
+        isLoadingEditProject.value = false
     }
 }
 
