@@ -48,7 +48,7 @@
             </v-card-text>
         </v-card>
         <ModalNewProject v-if="dialog" v-model:dialog="dialog" :is-loading="isLoadingNewProject" @close="dialog = false" @submit="HandleSubmitNewProject"></ModalNewProject>
-        <ModalEditProject v-if="dialogEditProject" v-model:dialog="dialogEditProject" :project="editProject" :is-loading="false" @close="dialogEditProject = false" @submit="HandleSubmitEditProject" />
+        <ModalEditProject v-if="dialogEditProject" v-model:dialog="dialogEditProject" :project="editProject" :is-loading="isLoadingEditProject" @close="dialogEditProject = false" @submit="HandleSubmitEditProject" />
     </v-container>
 </template>
 
@@ -57,12 +57,13 @@ import { computed, onMounted, ref } from 'vue';
 import ProjectCard from '../../components/ProjectCard.vue';
 import ModalNewProject from '../../components/ModalNewProject.vue';
 import ModalEditProject from '../../components/ModalEditProject.vue'
-import { GetAllProjectsApi, NewProjectApi } from '../../services/api';
+import { GetAllProjectsApi, NewProjectApi, UpdateProjectApi } from '../../services/api';
 import { EditProject, Project } from '../../types/projectInterface';
 import { Notification } from '../../plugins/notifications';
 
 const isLoading = ref(false);
 const isLoadingNewProject = ref(false);
+const isLoadingEditProject = ref(false);
 const haveProjects = ref(false);
 const orderData = ref({ title: 'Nome', value: 'nome' })
 const dialog = ref(false);
@@ -144,8 +145,19 @@ function EditProjeto(project: Project) {
 }
 
 async function HandleSubmitEditProject(project: EditProject) {
-    console.log(project);
-    
+    isLoadingEditProject.value = true
+    try {
+        const response = await UpdateProjectApi(project)
+        if(response.status == 'success'){
+            dialogEditProject.value = false
+            GetAllProjects();
+            Notification.success("Projeto atualizado com sucesso")
+        }
+    } catch (error) {
+        Notification.error(`Não foi possível atualizar o projeto: ${error.message}`)
+    }finally{
+        isLoadingEditProject.value = false
+    }
 }
 
 onMounted(() => {
