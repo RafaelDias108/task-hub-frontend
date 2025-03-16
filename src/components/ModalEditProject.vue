@@ -82,7 +82,6 @@ async function Submit() {
     formEditProject.name_project = props.project.name_project
     formEditProject.date_project = props.project.date_project
     formEditProject.categories = props.project.categories
-    console.log(formEditProject);
     
     try {
         if (await validateForm()) {
