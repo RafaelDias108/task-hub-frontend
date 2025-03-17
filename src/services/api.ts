@@ -33,6 +33,14 @@ export const UpdateProjectApi = async (data: EditProject) => {
         throw new Error(error.message);
     }
 }
+export const DeleteProjectApi = async (uuid: String) => {
+    try {
+        const response = await api.delete(`/projects/${uuid}`)
+        return response.data
+    } catch (error) {       
+        throw new Error(error.message);
+    }
+}
 
 // Categories
 export class Backend {
