@@ -32,7 +32,7 @@
                 </v-row>
                 <v-row class="px-10 py-5" v-else-if="haveProjects">
                     <v-col cols="12" md="4" v-for="project in allProjects">
-                        <ProjectCard :project="project" @edit="EditProjeto" />
+                        <ProjectCard :project="project" @edit="EditProjeto" @delete="HandleDeleteProject"/>
                     </v-col>
                 </v-row>
                 <v-row class="py-5" justify="center" v-if="haveProjects">
@@ -49,6 +49,7 @@
         </v-card>
         <ModalNewProject v-if="dialog" v-model:dialog="dialog" :is-loading="isLoadingNewProject" @close="dialog = false" @submit="HandleSubmitNewProject"></ModalNewProject>
         <ModalEditProject v-if="dialogEditProject" v-model:dialog="dialogEditProject" :project="editProject" :is-loading="isLoadingEditProject" @close="dialogEditProject = false" @submit="HandleSubmitEditProject" />
+        <ModalDeleteProject v-model:show-dialog="dialogDeleteProject" @delete="DeleteProject" v-model:is-loading="isLoadingDeleteProject" />
     </v-container>
 </template>
 
@@ -57,17 +58,20 @@ import { computed, onMounted, ref } from 'vue';
 import ProjectCard from '../../components/ProjectCard.vue';
 import ModalNewProject from '../../components/ModalNewProject.vue';
 import ModalEditProject from '../../components/ModalEditProject.vue'
-import { GetAllProjectsApi, NewProjectApi, UpdateProjectApi } from '../../services/api';
+import ModalDeleteProject from '../../components/ModalDeleteProject.vue';
+import { DeleteProjectApi, GetAllProjectsApi, NewProjectApi, UpdateProjectApi } from '../../services/api';
 import { EditProject, Project } from '../../types/projectInterface';
 import { Notification } from '../../plugins/notifications';
 
 const isLoading = ref(false);
 const isLoadingNewProject = ref(false);
 const isLoadingEditProject = ref(false);
+const isLoadingDeleteProject = ref(false);
 const haveProjects = ref(false);
 const orderData = ref({ title: 'Nome', value: 'nome' })
 const dialog = ref(false);
 const dialogEditProject = ref(false);
+const dialogDeleteProject = ref(false);
 const allProjects = ref<Project[]>([]);
 const editProject = ref<EditProject>({
     uuid: '',
@@ -75,6 +79,7 @@ const editProject = ref<EditProject>({
     date_project: '',
     categories: []
 })
+const uuid_project = ref<String | null >(null)
 
 async function GetAllProjects() {
 
@@ -157,6 +162,31 @@ async function HandleSubmitEditProject(project: EditProject) {
         Notification.error(`Não foi possível atualizar o projeto: ${error.message}`)
     }finally{
         isLoadingEditProject.value = false
+    }
+}
+
+function HandleDeleteProject(uuid: string) {
+    console.log(uuid);
+    uuid_project.value = uuid
+    dialogDeleteProject.value = true
+}
+
+async function DeleteProject() {
+    
+    if(uuid_project.value){
+        isLoadingDeleteProject.value = true
+        try {
+            const response = await DeleteProjectApi(uuid_project.value)
+            if(response.status == 'success'){
+                Notification.success("Projeto excluído com sucesso.")
+                GetAllProjects()
+            }
+        } catch (error) {
+            Notification.error("Não foi possível excluir o projeto: "+error.message)
+        }finally{
+            dialogDeleteProject.value = false
+            isLoadingDeleteProject.value = false
+        }
     }
 }
 
