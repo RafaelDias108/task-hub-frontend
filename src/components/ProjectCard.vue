@@ -35,7 +35,7 @@
 
                 <v-list>
                     <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Editar" prepend-icon="mdi-pencil-box-multiple-outline" @click="emit('edit', props.project)" />
-                    <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Deletar" prepend-icon="mdi-delete" @click="emit('delete')" />
+                    <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Deletar" prepend-icon="mdi-delete" @click="emit('delete', props.project.uuid_project)" />
                 </v-list>
             </v-menu>
         </template>
