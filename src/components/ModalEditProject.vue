@@ -11,7 +11,7 @@
                         <v-col cols="12">
                             <v-text-field label="Nome do projeto" required clearable v-model="props.project.name_project" :disabled="props.isLoading" :error="!!errors.name_project" :error-messages="errors.name_project"></v-text-field>
                             <v-text-field type="date" label="data do projeto" required clearable v-model="props.project.date_project" :disabled="props.isLoading"></v-text-field>
-                            <v-select clearable v-model="props.project.categories" :items="categories" item-title="name_category" item-value="uuid_category" label="Categorias" chips multiple :disabled="props.isLoading" :loading="isLoading" />
+                            <v-select clearable v-model="props.project.categories" :items="categoriesStore.categories" item-title="name_category" item-value="uuid_category" label="Categorias" chips multiple :disabled="props.isLoading" :loading="categoriesStore.isLoading" />
                             <v-btn class="mt-2" :loading="props.isLoading" color="primary" title="Salvar Projeto" text="Salvar Projeto" block size="large" @click="Submit()" />
                         </v-col>
                     </v-row>
@@ -27,8 +27,7 @@ import { ProjectSchema } from '../validations/NewProjectValidation';
 import { EditProject } from '../types/projectInterface';
 import * as yup from 'yup';
 import { Notification } from '../plugins/notifications';
-import { Backend } from '../services/api';
-import { Category } from '../types/Category';
+import { useCategoriesStore } from '../stores/categories';
 
 const dialog = defineModel('dialog', { type: Boolean, required: true });
 const emit = defineEmits(['close', 'submit']);
@@ -48,8 +47,7 @@ const formEditProject = reactive<EditProject>({
     date_project: null,
     categories: []
 });
-const isLoading = ref(false)
-const categories = ref<Category[]>([])
+const categoriesStore = useCategoriesStore()
 
 async function validateForm() {
     try {
@@ -92,22 +90,8 @@ async function Submit() {
     } 
 }
 
-async function Allcategories() {
-    isLoading.value = true
-    try {
-        const response = await Backend.GetAllCategories()
-        if(response.status == "success"){
-            categories.value = response.data
-        }
-    } catch (error) {
-        
-    }finally{
-        isLoading.value = false
-    }
-}
-
 onMounted(() => {
-    Allcategories()
+    categoriesStore.GetAllCategories()
 })
 
 </script>
