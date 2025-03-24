@@ -32,7 +32,7 @@
                 </v-row>
                 <v-row class="px-10 py-5" v-else-if="haveProjects">
                     <v-col cols="12" md="4" v-for="project in allProjects">
-                        <ProjectCard :project="project" @edit="EditProjeto" @delete="HandleDeleteProject"/>
+                        <ProjectCard :project="project" @edit="EditProjeto" @delete="HandleDeleteProject" @show-tasks="HandleDialogTasks"/>
                     </v-col>
                 </v-row>
                 <v-row class="py-5" justify="center" v-if="haveProjects">
@@ -50,6 +50,7 @@
         <ModalNewProject v-if="dialog" v-model:dialog="dialog" :is-loading="isLoadingNewProject" @close="dialog = false" @submit="HandleSubmitNewProject"></ModalNewProject>
         <ModalEditProject v-if="dialogEditProject" v-model:dialog="dialogEditProject" :project="editProject" :is-loading="isLoadingEditProject" @close="dialogEditProject = false" @submit="HandleSubmitEditProject" />
         <ModalDeleteProject v-model:show-dialog="dialogDeleteProject" @delete="DeleteProject" v-model:is-loading="isLoadingDeleteProject" />
+        <TaskModal v-model:show-dialog-task="showDialogTasks" />
     </v-container>
 </template>
 
@@ -62,6 +63,7 @@ import ModalDeleteProject from '../../components/ModalDeleteProject.vue';
 import { DeleteProjectApi, GetAllProjectsApi, NewProjectApi, UpdateProjectApi } from '../../services/api';
 import { EditProject, Project } from '../../types/projectInterface';
 import { Notification } from '../../plugins/notifications';
+import TaskModal from '../../components/TaskModal.vue';
 
 const isLoading = ref(false);
 const isLoadingNewProject = ref(false);
@@ -72,6 +74,7 @@ const orderData = ref({ title: 'Nome', value: 'nome' })
 const dialog = ref(false);
 const dialogEditProject = ref(false);
 const dialogDeleteProject = ref(false);
+const showDialogTasks = ref(false)
 const allProjects = ref<Project[]>([]);
 const editProject = ref<EditProject>({
     uuid: '',
@@ -188,6 +191,11 @@ async function DeleteProject() {
             isLoadingDeleteProject.value = false
         }
     }
+}
+
+function HandleDialogTasks(project: Project) {
+    console.log(project);
+    showDialogTasks.value = true
 }
 
 onMounted(() => {
