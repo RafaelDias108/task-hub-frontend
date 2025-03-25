@@ -134,7 +134,7 @@ async function HandleSubmitNewProject(data: any) {
     } catch (error: any) {
         
         if(error.data.hasOwnProperty('errors')){
-            for (const [key, value] of Object.entries(error.data.errors)) {
+            for (const value of Object.entries(error.data.errors)) {
                 Notification.error(`Não foi possível criar o projeto: ${value}`)
             }
         }

@@ -29,7 +29,7 @@ export const UpdateProjectApi = async (data: EditProject) => {
     try {
         const response = await api.put(`/projects/${data.uuid}`, JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } })
         return response.data
-    } catch (error) {       
+    } catch (error: any) {       
         throw new Error(error.message);
     }
 }
@@ -37,7 +37,7 @@ export const DeleteProjectApi = async (uuid: String) => {
     try {
         const response = await api.delete(`/projects/${uuid}`)
         return response.data
-    } catch (error) {       
+    } catch (error: any) {       
         throw new Error(error.message);
     }
 }
