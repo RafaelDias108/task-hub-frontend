@@ -21,7 +21,10 @@ api.interceptors.request.use(
     },
     (error) => {
         return Promise.reject(error);
-    });
+    }
+);
+
+let isRefreshing = false;
 
 // Response interceptor
 api.interceptors.response.use(
@@ -31,21 +34,41 @@ api.interceptors.response.use(
     },
     async (error) => {
         const authStore = useAuthStore();
-        if (error.response.status === 401) {
-            try {
-                await authStore.refreshToken();
+        const originalRequest = error.config
 
-                // Refaz a requisição original com o novo token
-                return api.request(error.config);
-            } catch (error) {
+        if (originalRequest.url.includes('/auth')) {
+            return Promise.reject(error.response.data);
+        }
+
+        if (originalRequest.url.includes('/auth/refresh-token')) {
+            delete api.defaults.headers.common["Authorization"];
+            authStore.logout();
+            router.push('/login')
+            return Promise.reject(error.response.data);
+        }
+
+        if (error.response.status === 401) {
+            if (!isRefreshing){
+
+                try {
+                    isRefreshing = true
+                    await authStore.refreshToken();
+                    // Refaz a requisição original com o novo token
+                    return api.request(error.config);
+                } catch (error) {
+                    delete api.defaults.headers.common["Authorization"];
+                    authStore.logout();
+                    router.push('/login')
+                    return Promise.reject(error);
+                }
+            }else{
                 delete api.defaults.headers.common["Authorization"];
                 authStore.logout();
                 router.push('/login')
-                return Promise.reject(error);
             }
         }
 
-        
+
 
         return Promise.reject(error.response.data);
     }

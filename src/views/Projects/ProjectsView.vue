@@ -161,7 +161,7 @@ async function HandleSubmitEditProject(project: EditProject) {
             GetAllProjects();
             Notification.success("Projeto atualizado com sucesso")
         }
-    } catch (error) {
+    } catch (error: any) {
         Notification.error(`Não foi possível atualizar o projeto: ${error.message}`)
     }finally{
         isLoadingEditProject.value = false
@@ -184,7 +184,7 @@ async function DeleteProject() {
                 Notification.success("Projeto excluído com sucesso.")
                 GetAllProjects()
             }
-        } catch (error) {
+        } catch (error: any) {
             Notification.error("Não foi possível excluir o projeto: "+error.message)
         }finally{
             dialogDeleteProject.value = false
