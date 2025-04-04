@@ -50,4 +50,10 @@ export class Backend {
         const response = await api.get('/categories')
         return response.data
     }
+
+    static async GetAllTasksByProject(uuid_project: string) {
+
+        const response = await api.get(`/projects/${uuid_project}/tasks`)
+        return response
+    }
 }

@@ -50,7 +50,7 @@
         <ModalNewProject v-if="dialog" v-model:dialog="dialog" :is-loading="isLoadingNewProject" @close="dialog = false" @submit="HandleSubmitNewProject"></ModalNewProject>
         <ModalEditProject v-if="dialogEditProject" v-model:dialog="dialogEditProject" :project="editProject" :is-loading="isLoadingEditProject" @close="dialogEditProject = false" @submit="HandleSubmitEditProject" />
         <ModalDeleteProject v-model:show-dialog="dialogDeleteProject" @delete="DeleteProject" v-model:is-loading="isLoadingDeleteProject" />
-        <TaskModal v-model:show-dialog-task="showDialogTasks" />
+        <TaskModal v-if="showDialogTasks" v-model:show-dialog-task="showDialogTasks" :project="projectInTask" />
     </v-container>
 </template>
 
@@ -76,6 +76,14 @@ const dialogEditProject = ref(false);
 const dialogDeleteProject = ref(false);
 const showDialogTasks = ref(false)
 const allProjects = ref<Project[]>([]);
+const projectInTask = ref<Project>({
+    uuid_project: null,
+    name_project: '',
+    date_project: '',
+    total_tasks: 0,
+    total_tasks_completed: 0,
+    categories: []
+})
 const editProject = ref<EditProject>({
     uuid: '',
     name_project: '',
@@ -146,7 +154,7 @@ async function HandleSubmitNewProject(data: any) {
 
 function EditProjeto(project: Project) {
     dialogEditProject.value = true
-    editProject.value.uuid = project.uuid_project
+    editProject.value.uuid = project.uuid_project ?? ''
     editProject.value.name_project = project.name_project
     editProject.value.date_project = project.date_project ?? null
     editProject.value.categories = project.categories
@@ -169,7 +177,6 @@ async function HandleSubmitEditProject(project: EditProject) {
 }
 
 function HandleDeleteProject(uuid: string) {
-    console.log(uuid);
     uuid_project.value = uuid
     dialogDeleteProject.value = true
 }
@@ -194,8 +201,11 @@ async function DeleteProject() {
 }
 
 function HandleDialogTasks(project: Project) {
-    console.log(project);
     showDialogTasks.value = true
+    projectInTask.value.uuid_project = project.uuid_project
+    projectInTask.value.name_project = project.name_project
+    projectInTask.value.total_tasks = project.total_tasks
+    projectInTask.value.total_tasks_completed = project.total_tasks_completed
 }
 
 onMounted(() => {
