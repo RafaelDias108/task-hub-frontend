@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-model="showModal" width="auto">
         <v-card min-width="500" :title="TitleModal">
-            {{ task }}
+            <!-- {{ task }} -->
             <template v-slot:append>
                 <v-btn icon="mdi-close" variant="text" @click="showModal = false"></v-btn>
             </template>
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed } from 'vue';
 
 const emit = defineEmits(['close', 'submit']);
 const showModal = defineModel('showModal', { type: Boolean, required: true })
