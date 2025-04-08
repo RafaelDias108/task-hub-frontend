@@ -35,7 +35,7 @@
             <v-card-title class="d-flex justify-space-between align-center mt-8 px-10">
                 <div class="d-flex align-center flex-wrap ga-8">
                     <h3>Tarefas</h3>
-                    <v-btn class="text-none my-5" color="primary" text="Nova Tarefa" @click="ShowModalHandleTask = true" v-if="tasks.length > 0" />
+                    <v-btn class="text-none my-5" color="primary" text="Nova Tarefa" @click="SetTaskCreate()" v-if="tasks.length > 0" />
                 </div>
                 <div class="d-flex align-center justify-end">
                     <span class="pb-3 pr-3 text-subtitle-1">Ordenar por:</span>
@@ -56,7 +56,7 @@
                         <v-icon icon="mdi-chart-box-plus-outline mb-2" size="72" color="grey-lighten-1"></v-icon>
                         <p class="font-weight-bold text-h6">Ainda não há tarefas...</p>
                         <p class="text-bolder">Por favor, clique abaixo para adicionar uma nova tarefa.</p>
-                        <v-btn class="text-none my-5" color="primary" text="Nova Tarefa" @click="ShowModalHandleTask = true" />
+                        <v-btn class="text-none my-5" color="primary" text="Nova Tarefa" @click="SetTaskCreate()" />
                     </v-col>
                 </v-row>
                 <v-row class="d-flex flex-column justify-center align-center py-5" v-else>
@@ -82,7 +82,7 @@
                                         <v-list>
                                             <v-list-item class="v-list-item-custom mx-2" link density="compact"
                                                 title="Editar" prepend-icon="mdi-pencil-box-multiple-outline"
-                                                @click="ShowModalHandleTask = true" />
+                                                @click="SetTaskEdit(task)" />
                                             <v-list-item class="v-list-item-custom mx-2" link density="compact"
                                                 title="Deletar" prepend-icon="mdi-delete" @click="" />
                                         </v-list>
@@ -95,11 +95,11 @@
             </v-card-text>
         </v-card>
     </v-dialog>
-    <ModalHandleTask v-model:show-modal="ShowModalHandleTask"/>
+    <ModalHandleTask v-model:show-modal="ShowModalHandleTask" :task="task ?? {}" :v-model:task="task"/>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { ConvertToPercentage } from '../helpers/functions';
 import { Backend } from '../services/api';
 import { Notification } from '../plugins/notifications';
@@ -117,7 +117,17 @@ const orderData = ref({ title: 'Nome', value: 'nome' })
 const taskIsCompleted = ref(false)
 const isLoading = ref(false)
 const tasks = ref([])
+const task = reactive({
+    uuid_task: null,
+    fk_id_project: null,
+    title_task: null,
+    description_task: null,
+    date_task: null,
+    time_task: null,
+    is_completed: false
+})
 const ShowModalHandleTask = ref(false)
+
 async function FecthTasks() {
     try {
         isLoading.value = true
@@ -134,6 +144,30 @@ async function FecthTasks() {
     } finally {
         isLoading.value = false
     }
+}
+
+function SetTaskEdit(item: any){
+
+    task.uuid_task = item.uuid_task
+    task.title_task = item.title_task
+    task.description_task = item.description_task
+    task.date_task = item.date_task
+    task.time_task = item.time_task
+    task.fk_id_project = item.fk_id_project
+
+    ShowModalHandleTask.value = true 
+}
+
+function SetTaskCreate(){
+
+    task.uuid_task = null
+    task.title_task = null
+    task.description_task = null
+    task.date_task = null
+    task.time_task = null
+    task.fk_id_project = null
+
+    ShowModalHandleTask.value = true 
 }
 
 const CountTasks = computed(() => {
