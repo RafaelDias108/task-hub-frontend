@@ -50,7 +50,7 @@
         <ModalNewProject v-if="dialog" v-model:dialog="dialog" :is-loading="isLoadingNewProject" @close="dialog = false" @submit="HandleSubmitNewProject"></ModalNewProject>
         <ModalEditProject v-if="dialogEditProject" v-model:dialog="dialogEditProject" :project="editProject" :is-loading="isLoadingEditProject" @close="dialogEditProject = false" @submit="HandleSubmitEditProject" />
         <ModalDeleteProject v-model:show-dialog="dialogDeleteProject" @delete="DeleteProject" v-model:is-loading="isLoadingDeleteProject" />
-        <TaskModal v-if="showDialogTasks" v-model:show-dialog-task="showDialogTasks" :project="projectInTask" />
+        <TaskModal v-if="showDialogTasks" v-model:show-dialog-task="showDialogTasks" :project="projectInTask" @update-projects="GetAllProjects" />
     </v-container>
 </template>
 

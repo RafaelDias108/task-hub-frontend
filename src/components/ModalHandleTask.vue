@@ -18,7 +18,7 @@
                             <v-text-field type="time" label="Hora da tarefa" required clearable
                                 v-model="task.time_task" :disabled="props.isLoading"></v-text-field>
                             <v-btn class="mt-2 text-none" :loading="props.isLoading" color="primary" text="Salvar Tarefa" block
-                                size="large" @click="Submit()" />
+                                size="large" @click="emit('saveTask', task)" />
                         </v-col>
                     </v-row>
                 </v-form>
@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const emit = defineEmits(['close', 'submit']);
+const emit = defineEmits(['close', 'saveTask']);
 const showModal = defineModel('showModal', { type: Boolean, required: true })
 const task = defineModel('task', { type: Object, required: true })
 const props = defineProps({
@@ -39,19 +39,6 @@ const props = defineProps({
         default: () => false
     },
 });
-
-// const formTask = reactive({
-//     uuid_task: null,
-//     fk_id_project: null,
-//     title_task: null,
-//     description_task: null,
-//     date_task: null,
-//     time_task: null,
-// })
-
-function Submit() {
-
-}
 
 const TitleModal = computed(() => {    
     return task.value.uuid_task ? 'Editar tarefa' : 'Criar tarefa'

@@ -16,13 +16,12 @@
                 <template #append>
                     <div class="text-center">
                         <v-progress-circular
-                            :model-value="ConvertToPercentage(props.project.total_tasks, props.project.total_tasks_completed)"
+                            :model-value="ConvertToPercentage(tasks.length, CountTasksCompleted)"
                             :rotate="360" :size="80" :width="8" color="white">
                             <template v-slot:default>
                                 <div class="d-flex flex-column">
                                     <span class="font-weight-bold" style="font-size: 1rem;">{{
-                                        ConvertToPercentage(props.project.total_tasks,
-                                            props.project.total_tasks_completed) }}</span>
+                                        ConvertToPercentage(tasks.length, CountTasksCompleted) }}%</span>
                                     <span style="font-size: .7rem;">Completo</span>
                                 </div>
                             </template>
@@ -45,7 +44,7 @@
                 </div>
             </v-card-title>
             <v-card-text>
-                <v-row class="d-flex flex-column justify-center align-center py-5" v-if="isLoading">
+                <v-row class="d-flex flex-column justify-center align-center py-3" v-if="isLoading">
                     <v-col class="text-center" cols="12" lg="6">
                         <v-progress-circular :size="50" color="primary" indeterminate></v-progress-circular>
                     </v-col>
@@ -59,19 +58,21 @@
                         <v-btn class="text-none my-5" color="primary" text="Nova Tarefa" @click="SetTaskCreate()" />
                     </v-col>
                 </v-row>
-                <v-row class="d-flex flex-column justify-center align-center py-5" v-else>
+                <v-row class="d-flex flex-column justify-center align-center py-3" v-else>
                     <v-col cols="12">
-                        <v-list>
-                            <v-list-item class="bg-cardCustom py-4" v-for="task in tasks" :key="task.uuid_task">
+                        <v-list class="d-flex flex-column ga-8">
+                            <v-list-item class="bg-cardCustom py-4" v-for="(task, index) in tasks" :key="index">
                                 <template #title>
-                                    <v-checkbox density="compact" v-model="taskIsCompleted">
+                                    <v-checkbox density="compact" v-model="task.is_completed" @change="ToggleCompleteTask(task)" true-value="1" false-value="0">
                                         <template #label>
-                                            <h4 class="ml-3">{{ task.title_task }}</h4>
+                                            <del class="ml-3" v-if="task.is_completed == 1">{{ task.title_task }}</del>
+                                            <h4 class="ml-3" v-else>{{ task.title_task }}</h4>
                                         </template>
                                     </v-checkbox>
                                 </template>
                                 <template #subtitle>
-                                    <v-chip label>Média</v-chip>
+                                    <!-- <v-chip label>Média</v-chip> -->
+                                     {{ task.description_task }}
                                 </template>
                                 <template v-slot:append>
                                     <v-menu>
@@ -84,7 +85,7 @@
                                                 title="Editar" prepend-icon="mdi-pencil-box-multiple-outline"
                                                 @click="SetTaskEdit(task)" />
                                             <v-list-item class="v-list-item-custom mx-2" link density="compact"
-                                                title="Deletar" prepend-icon="mdi-delete" @click="" />
+                                                title="Deletar" prepend-icon="mdi-delete" @click="showModalDeleteTask = true" />
                                         </v-list>
                                     </v-menu>
                                 </template>
@@ -95,16 +96,20 @@
             </v-card-text>
         </v-card>
     </v-dialog>
-    <ModalHandleTask v-model:show-modal="ShowModalHandleTask" :task="task ?? {}" :v-model:task="task"/>
+    <ModalHandleTask v-model:show-modal="ShowModalHandleTask" :task="task ?? {}" :v-model:task="task" :is-loading="isLoadingModalTask" @save-task="HandleSaveTask"/>
+    <ModalDeleteTask v-model:is-loading="isLoadingModalDeleteTask" v-model:show-dialog="showModalDeleteTask"/>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import { ConvertToPercentage } from '../helpers/functions';
-import { Backend } from '../services/api';
+import { Backend, CreateTaskByProject, EditTaskByProject, ToggleCompleteTaskByProject } from '../services/api';
 import { Notification } from '../plugins/notifications';
 import ModalHandleTask from './ModalHandleTask.vue';
+import { Task } from '../types/tasks';
+import ModalDeleteTask from './ModalDeleteTask.vue';
 
+const emit = defineEmits(['updateProjects'])
 const showDialogTask = defineModel('showDialogTask', { type: Boolean, required: true })
 const props = defineProps({
     project: {
@@ -112,14 +117,15 @@ const props = defineProps({
         required: true
     }
 })
-
+const showModalDeleteTask = ref(false)
 const orderData = ref({ title: 'Nome', value: 'nome' })
-const taskIsCompleted = ref(false)
 const isLoading = ref(false)
-const tasks = ref([])
-const task = reactive({
+const isLoadingModalTask = ref(false)
+const isLoadingModalDeleteTask = ref(false)
+const tasks = ref<Task[]>([])
+const task = reactive<Task>({
     uuid_task: null,
-    fk_id_project: null,
+    uuid_project: null,
     title_task: null,
     description_task: null,
     date_task: null,
@@ -130,7 +136,6 @@ const ShowModalHandleTask = ref(false)
 
 async function FecthTasks() {
     try {
-        isLoading.value = true
 
         const response = await Backend.GetAllTasksByProject(props.project.uuid_project)
         if (response.status == 200) {
@@ -141,8 +146,6 @@ async function FecthTasks() {
         if (error.status !== 404) {
             Notification.error(error.data.message)
         }
-    } finally {
-        isLoading.value = false
     }
 }
 
@@ -153,7 +156,7 @@ function SetTaskEdit(item: any){
     task.description_task = item.description_task
     task.date_task = item.date_task
     task.time_task = item.time_task
-    task.fk_id_project = item.fk_id_project
+    task.uuid_project = props.project.uuid_project
 
     ShowModalHandleTask.value = true 
 }
@@ -165,17 +168,67 @@ function SetTaskCreate(){
     task.description_task = null
     task.date_task = null
     task.time_task = null
-    task.fk_id_project = null
+    task.uuid_project = props.project.uuid_project
 
     ShowModalHandleTask.value = true 
+}
+
+async function HandleSaveTask(task: Task) {
+
+    try {
+        isLoadingModalTask.value = true
+        
+        const response = !task.uuid_task ? await CreateTaskByProject(task) : await EditTaskByProject(task)
+        console.log(response)
+        if (response.status == 'success') {
+            await FecthTasks()
+        }
+        Notification.success('Tarefa salva com sucesso')
+        ShowModalHandleTask.value = false
+    } catch (error: any) {
+        console.log(error)
+        Notification.error(`Não foi possível ${task.uuid_task ? 'atualizar' : 'criar'} a tarefa`)
+    } finally {
+        isLoadingModalTask.value = false
+    }
+}
+
+async function ToggleCompleteTask(task: Task) {
+    try {
+        if (task.uuid_task){
+            const response = await ToggleCompleteTaskByProject(task.uuid_task, task.is_completed == '1' ? true : false)
+            if (response.status == 'success') {
+                await FecthTasks()
+                emit('updateProjects')
+                Notification.success('Status da tarefa atualizada com sucesso')
+            }
+        }
+    } catch (error) {
+        console.log(error)
+        Notification.error('Não foi possível atualizar o status da tarefa')
+    }
 }
 
 const CountTasks = computed(() => {
     return `${tasks.value.length} ${tasks.value.length > 1 ? 'Tarefas' : 'Tarefa'}`
 })
 
+const CountTasksCompleted = computed(() => {
+    let count = 0
+
+    tasks.value.map((task: Task) => {
+        if (task.is_completed == '1') {
+            count++
+        }
+    })
+
+    return count
+})
+
 onMounted(async () => {
+    isLoading.value = true
     await FecthTasks()
+    isLoading.value = false
 })
 
 

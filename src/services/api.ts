@@ -1,4 +1,5 @@
 import { EditProject } from "../types/projectInterface";
+import { Task } from "../types/tasks";
 import api from "./axios"
 
 export const LoginApi = async (email: string, password: string) => {
@@ -56,4 +57,19 @@ export class Backend {
         const response = await api.get(`/projects/${uuid_project}/tasks`)
         return response
     }
+}
+
+export const CreateTaskByProject = async (taskData: Task) => {
+    const response = await api.post('/tasks', taskData)
+    return response.data
+}
+
+export const EditTaskByProject = async (taskData: Task) => {
+    const response = await api.put(`/tasks/${taskData.uuid_task}`, taskData)
+    return response.data
+}
+
+export const ToggleCompleteTaskByProject = async (taskUuid: String, is_completed: Number | boolean) => {    
+    const response = await api.put(`/tasks/${taskUuid}`, {is_completed: is_completed})
+    return response.data
 }
