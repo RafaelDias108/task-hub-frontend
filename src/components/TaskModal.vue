@@ -15,8 +15,7 @@
                 </template>
                 <template #append>
                     <div class="text-center">
-                        <v-progress-circular
-                            :model-value="ConvertToPercentage(tasks.length, CountTasksCompleted)"
+                        <v-progress-circular :model-value="ConvertToPercentage(tasks.length, CountTasksCompleted)"
                             :rotate="360" :size="80" :width="8" color="white">
                             <template v-slot:default>
                                 <div class="d-flex flex-column">
@@ -34,7 +33,8 @@
             <v-card-title class="d-flex justify-space-between align-center mt-8 px-10">
                 <div class="d-flex align-center flex-wrap ga-8">
                     <h3>Tarefas</h3>
-                    <v-btn class="text-none my-5" color="primary" text="Nova Tarefa" @click="SetTaskCreate()" v-if="tasks.length > 0" />
+                    <v-btn class="text-none my-5" color="primary" text="Nova Tarefa" @click="SetTaskCreate()"
+                        v-if="tasks.length > 0" />
                 </div>
                 <div class="d-flex align-center justify-end">
                     <span class="pb-3 pr-3 text-subtitle-1">Ordenar por:</span>
@@ -63,7 +63,8 @@
                         <v-list class="d-flex flex-column ga-8">
                             <v-list-item class="bg-cardCustom py-4" v-for="(task, index) in tasks" :key="index">
                                 <template #title>
-                                    <v-checkbox density="compact" v-model="task.is_completed" @change="ToggleCompleteTask(task)" true-value="1" false-value="0">
+                                    <v-checkbox density="compact" v-model="task.is_completed"
+                                        @change="ToggleCompleteTask(task)" true-value="1" false-value="0">
                                         <template #label>
                                             <del class="ml-3" v-if="task.is_completed == 1">{{ task.title_task }}</del>
                                             <h4 class="ml-3" v-else>{{ task.title_task }}</h4>
@@ -72,7 +73,7 @@
                                 </template>
                                 <template #subtitle>
                                     <!-- <v-chip label>Média</v-chip> -->
-                                     {{ task.description_task }}
+                                    {{ task.description_task }}
                                 </template>
                                 <template v-slot:append>
                                     <v-menu>
@@ -85,7 +86,8 @@
                                                 title="Editar" prepend-icon="mdi-pencil-box-multiple-outline"
                                                 @click="SetTaskEdit(task)" />
                                             <v-list-item class="v-list-item-custom mx-2" link density="compact"
-                                                title="Deletar" prepend-icon="mdi-delete" @click="showModalDeleteTask = true" />
+                                                title="Deletar" prepend-icon="mdi-delete"
+                                                @click="SetTaskDelete(task.uuid_task ?? null)" />
                                         </v-list>
                                     </v-menu>
                                 </template>
@@ -96,14 +98,16 @@
             </v-card-text>
         </v-card>
     </v-dialog>
-    <ModalHandleTask v-model:show-modal="ShowModalHandleTask" :task="task ?? {}" :v-model:task="task" :is-loading="isLoadingModalTask" @save-task="HandleSaveTask"/>
-    <ModalDeleteTask v-model:is-loading="isLoadingModalDeleteTask" v-model:show-dialog="showModalDeleteTask"/>
+    <ModalHandleTask v-model:show-modal="ShowModalHandleTask" :task="task ?? {}" :v-model:task="task"
+        :is-loading="isLoadingModalTask" @save-task="HandleSaveTask" />
+    <ModalDeleteTask v-model:is-loading="isLoadingModalDeleteTask" v-model:show-dialog="showModalDeleteTask"
+        @delete="DeleteTask" />
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import { ConvertToPercentage } from '../helpers/functions';
-import { Backend, CreateTaskByProject, EditTaskByProject, ToggleCompleteTaskByProject } from '../services/api';
+import { Backend, CreateTaskByProject, EditTaskByProject, Tasks, ToggleCompleteTaskByProject } from '../services/api';
 import { Notification } from '../plugins/notifications';
 import ModalHandleTask from './ModalHandleTask.vue';
 import { Task } from '../types/tasks';
@@ -148,8 +152,12 @@ async function FecthTasks() {
         }
     }
 }
+function SetTaskDelete(uuid_task: String | null) {
+    task.uuid_task = uuid_task
+    showModalDeleteTask.value = true
+}
 
-function SetTaskEdit(item: any){
+function SetTaskEdit(item: any) {
 
     task.uuid_task = item.uuid_task
     task.title_task = item.title_task
@@ -158,10 +166,10 @@ function SetTaskEdit(item: any){
     task.time_task = item.time_task
     task.uuid_project = props.project.uuid_project
 
-    ShowModalHandleTask.value = true 
+    ShowModalHandleTask.value = true
 }
 
-function SetTaskCreate(){
+function SetTaskCreate() {
 
     task.uuid_task = null
     task.title_task = null
@@ -170,14 +178,14 @@ function SetTaskCreate(){
     task.time_task = null
     task.uuid_project = props.project.uuid_project
 
-    ShowModalHandleTask.value = true 
+    ShowModalHandleTask.value = true
 }
 
 async function HandleSaveTask(task: Task) {
 
     try {
         isLoadingModalTask.value = true
-        
+
         const response = !task.uuid_task ? await CreateTaskByProject(task) : await EditTaskByProject(task)
         console.log(response)
         if (response.status == 'success') {
@@ -195,7 +203,7 @@ async function HandleSaveTask(task: Task) {
 
 async function ToggleCompleteTask(task: Task) {
     try {
-        if (task.uuid_task){
+        if (task.uuid_task) {
             const response = await ToggleCompleteTaskByProject(task.uuid_task, task.is_completed == '1' ? true : false)
             if (response.status == 'success') {
                 await FecthTasks()
@@ -206,6 +214,33 @@ async function ToggleCompleteTask(task: Task) {
     } catch (error) {
         console.log(error)
         Notification.error('Não foi possível atualizar o status da tarefa')
+    }
+}
+
+async function DeleteTask() {
+
+    try {
+        isLoadingModalDeleteTask.value = true
+
+        if (task.uuid_task == null) {
+            Notification.error('Não foi possível deletar a tarefa, pois não foi informado o uuid')
+            return
+        }
+
+        const response = await Tasks.DeleteTask(task.uuid_task)
+        if (response.status == 'success') {
+            showModalDeleteTask.value = false
+            Notification.success('Tarefa excluída com sucesso.')
+            isLoading.value = true
+            await FecthTasks()
+            isLoading.value = false
+            emit('updateProjects')
+        }
+    } catch (error) {
+        console.log(error)
+        Notification.error('Não foi possível deletar a tarefa')
+    } finally {
+        isLoadingModalDeleteTask.value = false
     }
 }
 

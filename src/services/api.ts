@@ -73,3 +73,11 @@ export const ToggleCompleteTaskByProject = async (taskUuid: String, is_completed
     const response = await api.put(`/tasks/${taskUuid}`, {is_completed: is_completed})
     return response.data
 }
+
+export class Tasks {
+
+    static async DeleteTask(taskUuid: String) {    
+        const response = await api.delete(`/tasks/${taskUuid}`)
+        return response.data
+    }
+}
