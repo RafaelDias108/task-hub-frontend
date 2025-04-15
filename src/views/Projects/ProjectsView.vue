@@ -32,7 +32,7 @@
                 </v-row>
                 <v-row class="px-10 py-5" v-else-if="haveProjects">
                     <v-col cols="12" md="4" v-for="project in allProjects">
-                        <ProjectCard :project="project" @edit="EditProjeto" @delete="HandleDeleteProject"/>
+                        <ProjectCard :project="project" @edit="EditProjeto" @delete="HandleDeleteProject" @show-tasks="HandleDialogTasks"/>
                     </v-col>
                 </v-row>
                 <v-row class="py-5" justify="center" v-if="haveProjects">
@@ -50,6 +50,7 @@
         <ModalNewProject v-if="dialog" v-model:dialog="dialog" :is-loading="isLoadingNewProject" @close="dialog = false" @submit="HandleSubmitNewProject"></ModalNewProject>
         <ModalEditProject v-if="dialogEditProject" v-model:dialog="dialogEditProject" :project="editProject" :is-loading="isLoadingEditProject" @close="dialogEditProject = false" @submit="HandleSubmitEditProject" />
         <ModalDeleteProject v-model:show-dialog="dialogDeleteProject" @delete="DeleteProject" v-model:is-loading="isLoadingDeleteProject" />
+        <TaskModal v-if="showDialogTasks" v-model:show-dialog-task="showDialogTasks" :project="projectInTask" @update-projects="GetAllProjects" />
     </v-container>
 </template>
 
@@ -62,6 +63,7 @@ import ModalDeleteProject from '../../components/ModalDeleteProject.vue';
 import { DeleteProjectApi, GetAllProjectsApi, NewProjectApi, UpdateProjectApi } from '../../services/api';
 import { EditProject, Project } from '../../types/projectInterface';
 import { Notification } from '../../plugins/notifications';
+import TaskModal from '../../components/TaskModal.vue';
 
 const isLoading = ref(false);
 const isLoadingNewProject = ref(false);
@@ -72,7 +74,16 @@ const orderData = ref({ title: 'Nome', value: 'nome' })
 const dialog = ref(false);
 const dialogEditProject = ref(false);
 const dialogDeleteProject = ref(false);
+const showDialogTasks = ref(false)
 const allProjects = ref<Project[]>([]);
+const projectInTask = ref<Project>({
+    uuid_project: null,
+    name_project: '',
+    date_project: '',
+    total_tasks: 0,
+    total_tasks_completed: 0,
+    categories: []
+})
 const editProject = ref<EditProject>({
     uuid: '',
     name_project: '',
@@ -131,7 +142,7 @@ async function HandleSubmitNewProject(data: any) {
     } catch (error: any) {
         
         if(error.data.hasOwnProperty('errors')){
-            for (const [key, value] of Object.entries(error.data.errors)) {
+            for (const value of Object.entries(error.data.errors)) {
                 Notification.error(`Não foi possível criar o projeto: ${value}`)
             }
         }
@@ -143,7 +154,7 @@ async function HandleSubmitNewProject(data: any) {
 
 function EditProjeto(project: Project) {
     dialogEditProject.value = true
-    editProject.value.uuid = project.uuid_project
+    editProject.value.uuid = project.uuid_project ?? ''
     editProject.value.name_project = project.name_project
     editProject.value.date_project = project.date_project ?? null
     editProject.value.categories = project.categories
@@ -158,7 +169,7 @@ async function HandleSubmitEditProject(project: EditProject) {
             GetAllProjects();
             Notification.success("Projeto atualizado com sucesso")
         }
-    } catch (error) {
+    } catch (error: any) {
         Notification.error(`Não foi possível atualizar o projeto: ${error.message}`)
     }finally{
         isLoadingEditProject.value = false
@@ -166,7 +177,6 @@ async function HandleSubmitEditProject(project: EditProject) {
 }
 
 function HandleDeleteProject(uuid: string) {
-    console.log(uuid);
     uuid_project.value = uuid
     dialogDeleteProject.value = true
 }
@@ -181,13 +191,21 @@ async function DeleteProject() {
                 Notification.success("Projeto excluído com sucesso.")
                 GetAllProjects()
             }
-        } catch (error) {
+        } catch (error: any) {
             Notification.error("Não foi possível excluir o projeto: "+error.message)
         }finally{
             dialogDeleteProject.value = false
             isLoadingDeleteProject.value = false
         }
     }
+}
+
+function HandleDialogTasks(project: Project) {
+    showDialogTasks.value = true
+    projectInTask.value.uuid_project = project.uuid_project
+    projectInTask.value.name_project = project.name_project
+    projectInTask.value.total_tasks = project.total_tasks
+    projectInTask.value.total_tasks_completed = project.total_tasks_completed
 }
 
 onMounted(() => {

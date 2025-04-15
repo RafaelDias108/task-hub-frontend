@@ -34,6 +34,7 @@
                 </template>
 
                 <v-list>
+                    <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Tarefas" prepend-icon="mdi-list-box-outline" @click="emit('showTasks', props.project)" />
                     <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Editar" prepend-icon="mdi-pencil-box-multiple-outline" @click="emit('edit', props.project)" />
                     <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Deletar" prepend-icon="mdi-delete" @click="emit('delete', props.project.uuid_project)" />
                 </v-list>
@@ -44,7 +45,7 @@
 
 <script setup lang="ts">
 import { ConvertToPercentage } from '../helpers/functions';
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'delete', 'showTasks'])
 const props = defineProps({
     project : {
         type: Object,

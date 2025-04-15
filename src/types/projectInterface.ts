@@ -1,7 +1,7 @@
 import { Category } from "./Category"
 
 export interface Project {
-    uuid_project: string
+    uuid_project: string | null
     name_project: string
     total_tasks: number
     total_tasks_completed: number
