@@ -22,6 +22,7 @@
             </template>
         </CardView>
         <ModalHandleCategory v-model:show-modal="showModalCategory" v-model:category="category"/>
+        <!-- <ModalDeleteConfirm title="Deseja excluir a categoria ?" subtitle="Você não será capaz de reverter isso"/> -->
     </v-container>
 </template>
 
@@ -32,6 +33,7 @@ import { useCategoriesStore } from '../../stores/categories';
 import ListCategories from '../../components/ListCategories.vue';
 import ModalHandleCategory from '../../components/ModalHandleCategory.vue';
 import { Category } from '../../types/Category';
+// import ModalDeleteConfirm from '../../components/ModalDeleteConfirm.vue';
 
 const categoriesStore = useCategoriesStore()
 
