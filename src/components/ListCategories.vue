@@ -15,9 +15,9 @@
 
                     <v-list>
                         <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Editar"
-                            prepend-icon="mdi-pencil-box-multiple-outline" @click="emit('Edit', category.uuid)" />
+                            prepend-icon="mdi-pencil-box-multiple-outline" @click="emit('edit', category)" />
                         <v-list-item class="v-list-item-custom mx-2" link density="compact" title="Deletar"
-                            prepend-icon="mdi-delete" @click="emit('Delete', category.uuid)" />
+                            prepend-icon="mdi-delete" @click="emit('delete', category.uuid)" />
                     </v-list>
                 </v-menu>
             </template>
@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { Category } from '../types/Category';
 
-const emit = defineEmits(['Delete', 'Edit'])
+const emit = defineEmits(['delete', 'edit'])
 const props = defineProps<{
     categories: Category[]
 }>()
