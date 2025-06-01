@@ -1,5 +1,5 @@
 export interface Category {
-    uuid?: string
-    name_category: string
-    created_at?: Date
+    uuid?: string | null
+    name_category: string | null
+    created_at?: Date | null
 }   
